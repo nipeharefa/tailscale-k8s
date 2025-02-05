@@ -28,8 +28,8 @@ else
 fi
 
 echo "Starting tailscaled"
-tailscaled ${TAILSCALED_ARGS} &
-PID=$!
+# tailscaled ${TAILSCALED_ARGS} &
+# PID=$!
 
 UP_ARGS="--accept-dns=false"
 if [[ ! -z "${ROUTES}" ]]; then
@@ -43,6 +43,8 @@ if [[ ! -z "${EXTRA_ARGS}" ]]; then
 fi
 
 echo "Running tailscale up"
+tailscaled --tun=userspace-networking --socks5-server=localhost:1055 &
 tailscale up ${UP_ARGS}
+echo "Tailscale started"
 
-wait ${PID}
+# wait ${PID}
