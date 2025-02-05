@@ -13,7 +13,7 @@ fi
 
 set -e
 
-TAILSCALED_ARGS=""
+TAILSCALED_ARGS="--socket=/tmp/tailscaled.sock"
 
 if [[ "${USERSPACE}" == "true" ]]; then
   TAILSCALED_ARGS="${TAILSCALED_ARGS} --tun=userspace-networking --outbound-http-proxy-listen=localhost:1055"
@@ -28,7 +28,7 @@ else
 fi
 
 echo "Starting tailscaled"
-# tailscaled ${TAILSCALED_ARGS} &
+tailscaled ${TAILSCALED_ARGS} &
 PID=$!
 
 UP_ARGS="--accept-dns=false"
@@ -43,10 +43,8 @@ if [[ ! -z "${EXTRA_ARGS}" ]]; then
 fi
 
 echo "Running tailscale up"
-tailscaled --tun=userspace-networking --socks5-server=localhost:1055 &
-tailscale up ${UP_ARGS}
-echo "Tailscale started"
+tailscale --socket=/tmp/tailscaled.sock up ${UP_ARGS}
+tailscaled &
+PID2=$!
 
-tailscale status
-wait ${PID}
-
+wait ${PID2}
